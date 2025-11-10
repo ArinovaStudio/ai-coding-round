@@ -6,6 +6,7 @@ interface Question {
   questionType: "code" | "plainText" | "MCQ";
   codeLang?: string;
   options?: string[];
+  isAI: boolean;
 }
 
 export interface QuestionModel extends Document {
@@ -31,7 +32,8 @@ const QuestionSchema = new Schema<QuestionModel>(
           required: true,
         },
         codeLang: { type: String },
-        options: [{ type: String }], // Optional, for MCQs
+        options: [{ type: String }],
+        isAI: { type: Boolean, default: false },
       },
     ],
   },
