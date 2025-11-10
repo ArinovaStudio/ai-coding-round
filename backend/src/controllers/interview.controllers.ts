@@ -7,44 +7,40 @@ import { nanoid } from "nanoid";
 
 export const createInterview = async (req: Request, res: Response) => {
   try {
-    const {
-      name,
-      appliedFor,
-      description,
-      difficultyLevel,
-      skillSet,
-      focusStackArea,
-      numberOfQuestions,
-      addQuestions, 
-    } = req.body;
+    const data = req.body;
 
     //Basic validation
-    if (!name || !appliedFor || !Array.isArray(skillSet) || !numberOfQuestions) {
+    if (
+      !data.name ||
+      !data.appliedFor ||
+      !Array.isArray(data.skillSet) ||
+      !data.numberOfQuestions
+    ) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
     }
 
     const slug =
-      slugify(`${appliedFor}`, { lower: true, strict: true }) + "-" + nanoid(6);
+      slugify(`${data.appliedFor}`, { lower: true, strict: true }) + "-" + nanoid(6);
     const createdBy = (req as any).user?._id ?? null;
 
-    //Create the Interview 
+    //Create the Interview
     const interview = await Interview.create({
-      name,
-      appliedFor,
-      description,
-      difficultyLevel,
-      skillSet,
-      focusStackArea,
-      numberOfQuestions,
+      name:data.name,
+      appliedFor:data.appliedFor,
+      description:data.description,
+      difficultyLevel:data.difficultyLevel,
+      skillSet:data.skillSet,
+      focusStackArea:data.focusStackArea,
+      numberOfQuestions:data.numberOfQuestions,
       slug,
       createdBy,
     });
 
     //Handle manually added questions
-    const manualQuestions = Array.isArray(addQuestions)
-      ? addQuestions.map((q: any) => ({
+    const manualQuestions = Array.isArray(data.addQuestions)
+      ? data.addQuestions.map((q: any) => ({
           question: q.question,
           answer: q.answer,
           questionType: q.questionType || "plainText",
@@ -54,18 +50,18 @@ export const createInterview = async (req: Request, res: Response) => {
       : [];
 
     //Determine how many AI questions are needed
-    const remainingCount = numberOfQuestions - manualQuestions.length;
+    const remainingCount = data.numberOfQuestions - manualQuestions.length;
 
     let generatedQuestions: any[] = [];
 
     if (remainingCount > 0) {
       //Generate remaining AI questions
       generatedQuestions = await generateQuestionsWithGemini({
-        skillSet,
-        focusStackArea,
-        difficultyLevel,
+        skillSet:data.skillSet,
+        focusStackArea:data.focusStackArea,
+        difficultyLevel:data.difficultyLevel,
         numberOfQuestions: remainingCount,
-        description,
+        description:data.description,
       });
 
       //Normalize structure of AI-generated questions
