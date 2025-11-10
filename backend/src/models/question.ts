@@ -3,6 +3,8 @@ import mongoose, { Schema, Document } from "mongoose";
 interface Question {
   question: string;
   answer: string;
+  questionType: "code" | "plainText" | "MCQ";
+  codeLang?: string;
 }
 
 export interface QuestionModel extends Document {

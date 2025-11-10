@@ -13,9 +13,8 @@ interface GenerateParams {
   description?: string;
 }
 
-/**
- * Generates interview questions and answers using Gemini 2.5 Flash
- */
+//Generates interview questions and answers using gemini-2.0-flash-lite
+
 export const generateQuestionsWithGemini = async ({
   skillSet,
   focusStackArea,
@@ -23,20 +22,36 @@ export const generateQuestionsWithGemini = async ({
   numberOfQuestions,
   description,
 }: GenerateParams) => {
-  // 🧠 Prompt
+  //Prompt
   const prompt = `
-  You are an AI interviewer. Generate ${numberOfQuestions} ${difficultyLevel}-level interview questions multiple choice based with four options
-  and their correct answers for a candidate applying for a ${focusStackArea} role.
-  The required skills are: ${skillSet.join(", ")}.
-  ${description ? `Interview description: ${description}` : ""}
+You are an AI interviewer. Generate ${numberOfQuestions} ${difficultyLevel}-level interview questions 
+for a candidate applying for a ${focusStackArea} role.
 
-  Format the response strictly in JSON as:
-  [
-    { "question": "string", "answer": "string" },
-    ...
-  ]
-    Do not include markdown, explanations, or code fences.
-  `;
+Required skills: ${skillSet.join(", ")}.
+${description ? `Interview description: ${description}` : ""}
+
+Each question should include:
+- question: the question text
+- answer: the correct answer or expected response
+- questionType: one of "MCQ", "plainText", or "code"
+- If questionType is "MCQ", include 4 options in an array named "options"
+- If questionType is "code", include a field "codeLang" (like "javascript", "python", "c++") and the question should ask for code or output
+- If questionType is "plainText", it should be a conceptual or theory-based question
+
+Format the response strictly in JSON as:
+[
+  {
+    "question": "string",
+    "answer": "string",
+    "questionType": "MCQ" | "plainText" | "code",
+    "options": ["A", "B", "C", "D"], // only for MCQ
+    "codeLang": "string" // only if questionType is "code"
+  },
+  ...
+]
+
+Do not include markdown, explanations, or code fences.
+`;
 
   // Call Gemini model
   const response = await ai.models.generateContent({

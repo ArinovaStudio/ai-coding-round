@@ -1,4 +1,4 @@
-import { generateQuestionsWithGemini } from "./../utils/aiClient";
+import { generateQuestionsWithGemini } from "../utils/aiClient";
 import { Request, Response } from "express";
 import Interview from "../models/interview";
 import Question from "../models/question";
@@ -15,16 +15,11 @@ export const createInterview = async (req: Request, res: Response) => {
       skillSet,
       focusStackArea,
       numberOfQuestions,
-      addQuestions,
+      addQuestions, 
     } = req.body;
 
-    // Basic validation
-    if (
-      !name ||
-      !appliedFor ||
-      !Array.isArray(skillSet) ||
-      !numberOfQuestions
-    ) {
+    //Basic validation
+    if (!name || !appliedFor || !Array.isArray(skillSet) || !numberOfQuestions) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
@@ -32,8 +27,9 @@ export const createInterview = async (req: Request, res: Response) => {
 
     const slug =
       slugify(`${appliedFor}`, { lower: true, strict: true }) + "-" + nanoid(6);
-    const createdBy = (req as any).user?._id ?? null; // ensure auth middleware sets req.user
+    const createdBy = (req as any).user?._id ?? null;
 
+    //Create the Interview 
     const interview = await Interview.create({
       name,
       appliedFor,
@@ -46,23 +42,53 @@ export const createInterview = async (req: Request, res: Response) => {
       createdBy,
     });
 
-    // Generate AI questions
-    const generatedQuestions = await generateQuestionsWithGemini({
-      skillSet,
-      focusStackArea,
-      difficultyLevel,
-      numberOfQuestions,
-      description,
-    });
+    //Handle manually added questions
+    const manualQuestions = Array.isArray(addQuestions)
+      ? addQuestions.map((q: any) => ({
+          question: q.question,
+          answer: q.answer,
+          questionType: q.questionType || "plainText",
+          codeLang:
+            q.questionType === "code" ? q.codeLang || "javascript" : undefined,
+        }))
+      : [];
 
-    // console.log("questions == ", generatedQuestions);
+    //Determine how many AI questions are needed
+    const remainingCount = numberOfQuestions - manualQuestions.length;
 
-    const question = await Question.create({
+    let generatedQuestions: any[] = [];
+
+    if (remainingCount > 0) {
+      //Generate remaining AI questions
+      generatedQuestions = await generateQuestionsWithGemini({
+        skillSet,
+        focusStackArea,
+        difficultyLevel,
+        numberOfQuestions: remainingCount,
+        description,
+      });
+
+      //Normalize structure of AI-generated questions
+      generatedQuestions = generatedQuestions.map((q: any) => ({
+        question: q.question,
+        answer: q.answer,
+        questionType: q.questionType || "plainText",
+        codeLang:
+          q.questionType === "code" ? q.codeLang || "javascript" : undefined,
+      }));
+    }
+
+    //Combine manual + AI questions
+    const allQuestions = [...manualQuestions, ...generatedQuestions];
+
+    //Create Question document
+    const questionDoc = await Question.create({
       interviewId: interview._id,
-      questions: generatedQuestions,
+      questions: allQuestions,
     });
 
-    interview.questionId = question._id as any;
+    //Save the question id in interview
+    interview.questionId = questionDoc._id as any;
     await interview.save();
 
     return res.status(201).json({
@@ -70,7 +96,10 @@ export const createInterview = async (req: Request, res: Response) => {
       message: "Interview created successfully",
       slug: interview.slug,
       interviewId: interview._id,
-      questionId: question._id,
+      questionId: questionDoc._id,
+      totalQuestions: allQuestions.length,
+      generatedByAI: remainingCount,
+      manuallyAdded: manualQuestions.length,
     });
   } catch (err) {
     console.error("createInterview error:", err);
