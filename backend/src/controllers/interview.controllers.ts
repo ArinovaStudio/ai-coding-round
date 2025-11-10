@@ -22,32 +22,36 @@ export const createInterview = async (req: Request, res: Response) => {
     }
 
     const slug =
-      slugify(`${data.appliedFor}`, { lower: true, strict: true }) + "-" + nanoid(6);
+      slugify(`${data.appliedFor}`, { lower: true, strict: true }) +
+      "-" +
+      nanoid(6);
     const createdBy = (req as any).user?._id ?? null;
 
     //Create the Interview
     const interview = await Interview.create({
-      name:data.name,
-      appliedFor:data.appliedFor,
-      description:data.description,
-      difficultyLevel:data.difficultyLevel,
-      skillSet:data.skillSet,
-      focusStackArea:data.focusStackArea,
-      numberOfQuestions:data.numberOfQuestions,
+      name: data.name,
+      appliedFor: data.appliedFor,
+      description: data.description,
+      difficultyLevel: data.difficultyLevel,
+      skillSet: data.skillSet,
+      focusStackArea: data.focusStackArea,
+      numberOfQuestions: data.numberOfQuestions,
       slug,
       createdBy,
     });
 
     //Handle manually added questions
-    const manualQuestions = Array.isArray(data.addQuestions)
-      ? data.addQuestions.map((q: any) => ({
-          question: q.question,
-          answer: q.answer,
-          questionType: q.questionType || "plainText",
-          codeLang:
-            q.questionType === "code" ? q.codeLang || "javascript" : undefined,
-        }))
-      : [];
+    let manualQuestions = data.addQuestions.map((q: any) => ({
+      question: q.question,
+      answer: q.answer,
+      questionType: q.questionType || "plainText",
+      codeLang:
+        q.questionType === "code" ? q.codeLang || "javascript" : undefined,
+      options:
+        q.questionType === "MCQ" && Array.isArray(q.options)
+          ? q.options
+          : undefined,
+    }));
 
     //Determine how many AI questions are needed
     const remainingCount = data.numberOfQuestions - manualQuestions.length;
@@ -57,11 +61,11 @@ export const createInterview = async (req: Request, res: Response) => {
     if (remainingCount > 0) {
       //Generate remaining AI questions
       generatedQuestions = await generateQuestionsWithGemini({
-        skillSet:data.skillSet,
-        focusStackArea:data.focusStackArea,
-        difficultyLevel:data.difficultyLevel,
+        skillSet: data.skillSet,
+        focusStackArea: data.focusStackArea,
+        difficultyLevel: data.difficultyLevel,
         numberOfQuestions: remainingCount,
-        description:data.description,
+        description: data.description,
       });
 
       //Normalize structure of AI-generated questions
@@ -105,3 +109,5 @@ export const createInterview = async (req: Request, res: Response) => {
       .json({ success: false, message: "Internal Server Error" });
   }
 };
+
+
