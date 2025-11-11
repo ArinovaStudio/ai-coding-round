@@ -2,7 +2,6 @@ import { generateQuestionsWithGemini } from "../utils/aiClient";
 import { Request, Response } from "express";
 import Interview from "../models/interview";
 import Question from "../models/question";
-import Submission from "../models/submission";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 
@@ -121,67 +120,67 @@ export const createInterview = async (req: Request, res: Response) => {
   }
 };
 
-// Get interview with questions by slug
-export const getInterviewBySlug = async (req: Request, res: Response) => {
+export const getAiQuestions = async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const docs = await Question.find({ "questions.isAI": true })
+      .populate("interviewId", "name slug appliedFor");
 
-    const interview = await Interview.findOne({ slug }).populate("questionId");
+    const aiQuestions = docs
+      .map(doc => ({
+        ...doc.toObject(),
+        questions: doc.questions.filter(q => q.isAI === true),
+      }))
+      .filter(doc => doc.questions.length > 0); 
 
-    if (!interview) {
+    if (!aiQuestions.length) {
       return res
         .status(404)
-        .json({ success: false, message: "Interview not found" });
+        .json({ success: false, message: "No AI-generated questions found" });
     }
 
     return res.status(200).json({
       success: true,
-      data: interview,
+      count: aiQuestions.length,
+      data: aiQuestions,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error", error: err });
+    console.error("getAiQuestions error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: err,
+    });
   }
 };
 
-// Submit answer by the interviwee
-export const submitInterview = async (req: Request, res: Response) => {
+export const deleteQuestion = async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
-    const { candidateName, candidateEmail, responses } = req.body;
+    const { interviewId, questionId } = req.params;
 
-    if (!candidateName || !Array.isArray(responses)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing required fields" });
-    }
-
-    // Find interview by slug
-    const interview = await Interview.findOne({ slug });
-    if (!interview) {
+    const questionDoc = await Question.findOne({ interviewId });
+    if (!questionDoc)
       return res
         .status(404)
         .json({ success: false, message: "Interview not found" });
-    }
 
-    // Create new submission
-    const submission = await Submission.create({
-      interviewId: interview._id,
-      candidateName,
-      candidateEmail,
-      responses,
-    });
+    questionDoc.questions = questionDoc.questions.filter(
+      (q: any) => q._id.toString() !== questionId
+    );
 
-    return res.status(201).json({
+    await questionDoc.save();
+
+    return res.status(200).json({
       success: true,
-      message: "Submission received successfully",
-      submissionId: submission._id,
+      message: "Question deleted successfully",
     });
   } catch (err) {
-    console.error("submitInterview error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error", error: err });
+    console.error("deleteQuestion error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: err,
+    });
   }
 };
+
+

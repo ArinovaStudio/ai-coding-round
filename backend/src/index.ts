@@ -3,8 +3,8 @@ dotenv.config();
 
 import express, { Request, Response } from "express";
 import { connectDB } from "./config/db";
-import interviewRoute from "./routes/interview.routes"
-import questionRoute from "./routes/question.routes"
+import interviewAdminRoute from "./routes/interview-admin.routes"
+import interviewUserRoute from "./routes/interview-user.routes"
 
 const app = express();
 const PORT = process.env.PORT;
@@ -14,8 +14,8 @@ connectDB();
 
 app.use(express.json());
 
-app.use("/api/admin",interviewRoute)
-app.use("/api/admin",questionRoute)
+app.use("/api/admin",interviewAdminRoute)
+app.use("/api/user",interviewUserRoute)
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello from Express + TypeScript!");
