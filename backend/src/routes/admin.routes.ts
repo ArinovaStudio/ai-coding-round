@@ -9,7 +9,7 @@ import {
   getSubmissionById,
   deleteSubmission,
   handleCandidateDecision,
-} from "../controllers/admin.controllers";
+} from "../controllers/admin.controller";
 import { authenticate, authorizeRoles } from "../middleware/auth";
 const router = Router();
 

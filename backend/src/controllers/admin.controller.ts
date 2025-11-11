@@ -196,7 +196,9 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const users = await User.find({ role: "user" }, "-password");
     res.status(200).json({ success: true, users });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to fetch users" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch users", error });
   }
 };
 
@@ -215,7 +217,9 @@ export const deleteUser = async (req: Request, res: Response) => {
       .status(200)
       .json({ success: true, message: "User deleted successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to delete user" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to delete user", error });
   }
 };
 
@@ -230,7 +234,7 @@ export const getAllSubmissions = async (req: Request, res: Response) => {
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: "Failed to fetch submissions" });
+      .json({ success: false, message: "Failed to fetch submissions", error });
   }
 };
 
@@ -251,7 +255,7 @@ export const getSubmissionById = async (req: Request, res: Response) => {
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: "Failed to fetch submission" });
+      .json({ success: false, message: "Failed to fetch submission", error });
   }
 };
 
@@ -271,7 +275,7 @@ export const deleteSubmission = async (req: Request, res: Response) => {
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: "Failed to delete submission" });
+      .json({ success: false, message: "Failed to delete submission", error });
   }
 };
 
@@ -323,8 +327,10 @@ export const handleCandidateDecision = async (req: Request, res: Response) => {
       message: `Candidate ${status} and email sent.`,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to update candidate status" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to update candidate status",
+      error,
+    });
   }
 };
