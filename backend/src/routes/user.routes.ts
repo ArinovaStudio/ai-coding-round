@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   getInterviewBySlug,
   submitInterview,
-} from "../controllers/interview-user.controller";
+} from "../controllers/user.controller";
 import { authenticate, authorizeRoles } from "../middleware/auth";
 const router = Router();
 

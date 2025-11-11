@@ -4,8 +4,8 @@ dotenv.config();
 import express, { Request, Response } from "express";
 import { connectDB } from "./config/db";
 import authRoute from "./routes/auth.routes"
-import interviewAdminRoute from "./routes/interview-admin.routes"
-import interviewUserRoute from "./routes/interview-user.routes"
+import interviewAdminRoute from "./routes/admin.routes"
+import interviewUserRoute from "./routes/user.routes"
 
 const app = express();
 const PORT = process.env.PORT;
