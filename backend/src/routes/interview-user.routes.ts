@@ -3,9 +3,20 @@ import {
   getInterviewBySlug,
   submitInterview,
 } from "../controllers/interview-user.controller";
+import { authenticate, authorizeRoles } from "../middleware/auth";
 const router = Router();
 
-router.get("/:slug", getInterviewBySlug);
-router.post("/:slug/submit", submitInterview);
+router.get(
+  "/:slug",
+  authenticate,
+  authorizeRoles("user", "admin"),
+  getInterviewBySlug
+);
+router.post(
+  "/:slug/submit",
+  authenticate,
+  authorizeRoles("user"),
+  submitInterview
+);
 
 export default router;

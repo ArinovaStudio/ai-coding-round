@@ -3,6 +3,7 @@ dotenv.config();
 
 import express, { Request, Response } from "express";
 import { connectDB } from "./config/db";
+import authRoute from "./routes/auth.routes"
 import interviewAdminRoute from "./routes/interview-admin.routes"
 import interviewUserRoute from "./routes/interview-user.routes"
 
@@ -14,6 +15,7 @@ connectDB();
 
 app.use(express.json());
 
+app.use("/api/auth",authRoute)
 app.use("/api/admin",interviewAdminRoute)
 app.use("/api/user",interviewUserRoute)
 
