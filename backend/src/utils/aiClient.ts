@@ -63,7 +63,6 @@ Do not include markdown, explanations, or code fences.
     ?.replace(/```json/g, "")
     .replace(/```/g, "")
     .trim();
-  //   console.log("response====", text);
   try {
     // Attempt to parse Gemini's JSON output
     const parsed = JSON.parse(cleanText as string);

@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, { Request, Response } from "express";
+import cors from "cors";
 import { connectDB } from "./config/db";
 import authRoute from "./routes/auth.routes"
 import interviewAdminRoute from "./routes/admin.routes"
@@ -12,6 +13,12 @@ const PORT = process.env.PORT;
 
 //connect db
 connectDB();
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
 
 app.use(express.json());
 
