@@ -55,7 +55,7 @@ Do not include markdown, explanations, or code fences.
 
   // Call Gemini model
   const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-lite",
+    model: "gemini-2.0-flash",
     contents: prompt,
   });
   const text = response.candidates?.[0]?.content?.parts?.[0]?.text;

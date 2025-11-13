@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import cors from "cors"
 dotenv.config();
 
 import express, { Request, Response } from "express";
@@ -14,6 +15,7 @@ const PORT = process.env.PORT;
 connectDB();
 
 app.use(express.json());
+app.use(cors())
 
 app.use("/api/auth",authRoute)
 app.use("/api/admin",interviewAdminRoute)
