@@ -4,7 +4,6 @@ import {
     FaClipboardList,
     FaUsers,
     FaQuestionCircle,
-    FaChartLine,
     FaSpinner,
     FaCheck,
     FaTimes,
@@ -16,36 +15,33 @@ const InterviewStats = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // Mock data for AI Interviewer
+    // Fetch dynamic data from backend
     useEffect(() => {
-        setLoading(true);
-        setTimeout(() => {
-            setStats({
-                totalInterviews: 1247,
-                totalUsers: 892,
-                totalQuestions: 156,
-                avgScore: 78.5,
-                interviewStats: {
-                    pending: 23,
-                    inProgress: 8,
-                    completed: 1156,
-                    cancelled: 60
-                },
-                topPerformers: [
-                    { name: 'John Doe', position: 'Frontend Developer', score: 95 },
-                    { name: 'Sarah Chen', position: 'Backend Developer', score: 92 },
-                    { name: 'Mike Johnson', position: 'Full Stack Developer', score: 89 },
-                    { name: 'Emily Davis', position: 'UI/UX Designer', score: 87 }
-                ],
-                recentInterviews: [
-                    { id: '1', candidate: 'Alex Wilson', position: 'React Developer', status: 'Completed', date: '2024-01-15', score: 85 },
-                    { id: '2', candidate: 'Lisa Brown', position: 'Node.js Developer', status: 'In Progress', date: '2024-01-15', score: null },
-                    { id: '3', candidate: 'David Lee', position: 'Python Developer', status: 'Pending', date: '2024-01-14', score: null },
-                    { id: '4', candidate: 'Maria Garcia', position: 'DevOps Engineer', status: 'Completed', date: '2024-01-14', score: 92 }
-                ]
-            });
-            setLoading(false);
-        }, 1000);
+        const fetchStats = async () => {
+            setLoading(true);
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/stats`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setStats(data.stats);
+                } else {
+                    console.error('Failed to fetch stats');
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
     }, []);
 
     if (loading) {
@@ -72,7 +68,7 @@ const InterviewStats = () => {
         <div className="dashboard-stats">
             {/* Summary Cards */}
             <div className="row g-4 mb-4">
-                <div className="col-xl-3 col-md-6">
+                <div className="col-xl-4 col-md-6">
                     <div className="card stat-card h-100">
                         <div className="card-body">
                             <div className="d-flex align-items-center">
@@ -87,22 +83,8 @@ const InterviewStats = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-xl-3 col-md-6">
-                    <div className="card stat-card h-100">
-                        <div className="card-body">
-                            <div className="d-flex align-items-center">
-                                <div className="stat-icon bg-success-light">
-                                    <FaChartLine className="text-success" />
-                                </div>
-                                <div className="ms-3">
-                                    <h6 className="stat-label">Average Score</h6>
-                                    <h3 className="stat-value">{stats.avgScore}%</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-xl-3 col-md-6">
+
+                <div className="col-xl-4 col-md-6">
                     <div className="card stat-card h-100">
                         <div className="card-body">
                             <div className="d-flex align-items-center">
@@ -117,7 +99,7 @@ const InterviewStats = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-xl-3 col-md-6">
+                <div className="col-xl-4 col-md-6">
                     <div className="card stat-card h-100">
                         <div className="card-body">
                             <div className="d-flex align-items-center">
@@ -136,7 +118,7 @@ const InterviewStats = () => {
 
             {/* Interview Status */}
             <div className="row mb-4">
-                <div className="col-md-6 mb-4 mb-md-0">
+                <div className="col-xl-6 col-md-12  mb-4 mb-md-0">
                     <div className="card h-100">
                         <div className="card-header">
                             <h5 className="card-title mb-0">Interview Status</h5>
@@ -146,7 +128,7 @@ const InterviewStats = () => {
                                 <div className="col-md-3 col-6">
                                     <div className="order-status-box text-center  p-3">
                                         <div className="status-icon pending  mx-4 mb-5">
-                                            <FaClock className="text-warning mx-3 "  />
+                                            <FaClock className="text-warning mx-3 " />
                                         </div>
                                         <h4 className="status-count">{stats.interviewStats.pending}</h4>
                                         <p className="status-label">Pending</p>
@@ -197,9 +179,7 @@ const InterviewStats = () => {
                                             <h6 className="mb-1">{performer.name}</h6>
                                             <p className="text-muted mb-0">{performer.position}</p>
                                         </div>
-                                        <span className="badge bg-success">
-                                            {performer.score}%
-                                        </span>
+                                       
                                     </li>
                                 ))}
                             </ul>
@@ -215,35 +195,30 @@ const InterviewStats = () => {
                     <Link to="/admin/submitted-interviews" className="btn btn-sm btn-outline-primary">View All</Link>
                 </div>
                 <div className="card-body p-0">
-                    <div className="table-responsive">
-                        <table className="table table-hover">
+                    <div className="table-responsive px-3">
+                        <table className="table table-hover ">
                             <thead>
                                 <tr>
-                                    <th>Interview ID</th>
                                     <th>Candidate</th>
                                     <th>Position</th>
                                     <th>Status</th>
                                     <th>Date</th>
-                                    <th>Score</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {stats.recentInterviews.map(interview => (
                                     <tr key={interview.id}>
-                                        <td>#{interview.id.padStart(8, '0')}</td>
                                         <td>{interview.candidate}</td>
                                         <td>{interview.position}</td>
                                         <td>
-                                            <span className={`badge bg-${
-                                                interview.status === 'Pending' ? 'warning' :
-                                                interview.status === 'In Progress' ? 'info' :
-                                                interview.status === 'Completed' ? 'success' : 'danger'
-                                            }`}>
+                                            <span className={`badge bg-${interview.status === 'Pending' ? 'warning' :
+                                                    interview.status === 'In Progress' ? 'info' :
+                                                        interview.status === 'Completed' ? 'success' : 'danger'
+                                                }`}>
                                                 {interview.status}
                                             </span>
                                         </td>
                                         <td>{new Date(interview.date).toLocaleDateString()}</td>
-                                        <td>{interview.score ? `${interview.score}%` : '-'}</td>
                                     </tr>
                                 ))}
                             </tbody>

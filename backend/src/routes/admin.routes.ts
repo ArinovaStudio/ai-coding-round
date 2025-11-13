@@ -9,6 +9,7 @@ import {
   getSubmissionById,
   deleteSubmission,
   handleCandidateDecision,
+  getAdminStats,
 } from "../controllers/admin.controller";
 import { authenticate, authorizeRoles } from "../middleware/auth";
 const router = Router();
@@ -73,6 +74,14 @@ router.post(
   authenticate,
   authorizeRoles("admin"),
   handleCandidateDecision
+);
+
+//get admin dashboard statistics
+router.get(
+  "/stats",
+  authenticate,
+  authorizeRoles("admin"),
+  getAdminStats
 );
 
 export default router;

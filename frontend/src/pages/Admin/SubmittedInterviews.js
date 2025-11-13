@@ -236,32 +236,74 @@ const SubmittedInterviews = () => {
                   </div>
                 ) : submissionDetails ? (
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-4">Submission Details</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-gray-50 p-4 rounded-lg mb-6">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-gray-600">Interview Name:</p>
-                          <p className="font-medium">{submissionDetails.interviewId?.name}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Position:</p>
+                          <p className="text-sm text-gray-600">Position</p>
                           <p className="font-medium">{submissionDetails.interviewId?.appliedFor}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600">Total Responses:</p>
-                          <p className="font-medium">{submissionDetails.responses?.length || 0}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Submitted At:</p>
+                          <p className="text-sm text-gray-600">Submitted</p>
                           <p className="font-medium">{formatDate(submissionDetails.createdAt)}</p>
                         </div>
                       </div>
-                      {submissionDetails.interviewId?.description && (
-                        <div className="mt-4">
-                          <p className="text-sm text-gray-600">Job Description:</p>
-                          <p className="text-gray-700 mt-1">{submissionDetails.interviewId.description}</p>
+                    </div>
+
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4">📝 Question-wise Evaluation</h4>
+                    <div className="space-y-4">
+                      {submissionDetails.evaluatedResponses?.map((response, index) => (
+                        <div key={index} className="border rounded-lg p-4 border-gray-200 bg-gray-50">
+                          <div className="flex justify-between items-start mb-3">
+                            <h5 className="font-semibold text-gray-800">Question {index + 1}</h5>
+                          </div>
+                          
+                          <div className="mb-3">
+                            <p className="text-sm font-medium text-gray-700 mb-1">Question:</p>
+                            <p className="text-gray-800 bg-white p-2 rounded border">{response.question}</p>
+                          </div>
+                          
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm font-medium text-gray-700 mb-1">Candidate's Answer:</p>
+                              <div className="bg-white p-2 rounded border">
+                                {response.questionType === 'code' ? (
+                                  <pre className="text-sm text-gray-800 whitespace-pre-wrap">
+                                    <code>{response.candidateAnswer || response.codeAnswer || 'No answer provided'}</code>
+                                  </pre>
+                                ) : (
+                                  <p className="text-gray-800">{response.candidateAnswer || response.answer || 'No answer provided'}</p>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <p className="text-sm font-medium text-gray-700 mb-1">Expected Answer:</p>
+                              <div className="bg-blue-50 p-2 rounded border border-blue-200">
+                                {response.questionType === 'code' ? (
+                                  <pre className="text-sm text-blue-800 whitespace-pre-wrap">
+                                    <code>{response.expectedAnswer}</code>
+                                  </pre>
+                                ) : (
+                                  <p className="text-blue-800">{response.expectedAnswer}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {response.questionType === 'MCQ' && response.options && (
+                            <div className="mt-3">
+                              <p className="text-sm font-medium text-gray-700 mb-1">Options:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {response.options.map((option, optIndex) => (
+                                  <span key={optIndex} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm">
+                                    {option}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
                 ) : (
@@ -278,6 +320,7 @@ const SubmittedInterviews = () => {
                 >
                   Close
                 </button>
+
                 <button 
                   onClick={() => handleCandidateDecision(selectedSubmission._id, 'selected')}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"

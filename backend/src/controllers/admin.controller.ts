@@ -8,6 +8,8 @@ import slugify from "slugify";
 import { nanoid } from "nanoid";
 import { sendEmail } from "../utils/sendEmail";
 
+
+
 // Create interview
 export const createInterview = async (req: Request, res: Response) => {
   try {
@@ -243,7 +245,7 @@ export const getSubmissionById = async (req: Request, res: Response) => {
   try {
     const submission = await Submission.findById(req.params.id).populate(
       "interviewId",
-      "name appliedFor description"
+      "name appliedFor description questionId"
     );
 
     if (!submission)
@@ -251,7 +253,59 @@ export const getSubmissionById = async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, message: "Submission not found" });
 
-    res.status(200).json({ success: true, submission });
+    // Get questions with expected answers
+    // submission.interviewId is populated above but typed as ObjectId; cast to any to access questionId safely
+    const interviewPopulated = (submission.interviewId as any) || null;
+    const questionDocId = interviewPopulated?.questionId ?? null;
+
+    if (!questionDocId) {
+      return res.status(404).json({ success: false, message: "Questions not found" });
+    }
+
+    const questions = await Question.findById(questionDocId);
+
+    if (!questions) {
+      return res.status(404).json({ success: false, message: "Questions not found" });
+    }
+
+    // Map responses with questions
+    const evaluatedResponses = submission.responses.map(response => {
+      const question = questions.questions.find(q => (q as any)._id.toString() === response.questionId.toString());
+
+      if (!question) {
+        return {
+          questionId: response.questionId,
+          candidateAnswer: response.questionType === "code" ? response.codeAnswer : response.answer,
+          codeAnswer: response.codeAnswer,
+          answer: response.answer,
+          codeLang: response.codeLang,
+          question: "Question not found",
+          expectedAnswer: "N/A",
+          questionType: "plainText",
+          options: []
+        };
+      }
+
+      return {
+        questionId: response.questionId,
+        candidateAnswer: response.questionType === "code" ? response.codeAnswer : response.answer,
+        codeAnswer: response.codeAnswer,
+        answer: response.answer,
+        codeLang: response.codeLang,
+        question: question.question,
+        expectedAnswer: question.answer,
+        questionType: question.questionType,
+        options: question.options
+      };
+    });
+
+    const submissionWithEvaluation = {
+      ...submission.toObject(),
+      evaluatedResponses,
+      totalQuestions: evaluatedResponses.length
+    };
+
+    res.status(200).json({ success: true, submission: submissionWithEvaluation });
   } catch (error) {
     res
       .status(500)
@@ -331,6 +385,99 @@ export const handleCandidateDecision = async (req: Request, res: Response) => {
       success: false,
       message: "Failed to update candidate status",
       error,
+    });
+  }
+};
+
+// Get admin dashboard statistics
+export const getAdminStats = async (req: Request, res: Response) => {
+  try {
+    // Get total interviews (actual interview attempts/submissions)
+    const totalInterviews = await Submission.countDocuments();
+
+    // Get total users (candidates)
+    const totalUsers = await User.countDocuments({ role: "user" });
+
+    
+
+    // Get total submissions
+    const totalSubmissions = await Submission.countDocuments();
+
+    // Get total AI questions count (matching getAiQuestions logic)
+    const docs = await Question.find({ "questions.isAI": true });
+    let totalQuestions = 0;
+    docs.forEach(doc => {
+      totalQuestions += doc.questions.filter(q => q.isAI === true).length;
+    });
+
+    // Get interview status counts
+    const interviewStats = {
+      pending: 0, // No pending since totalInterviews = totalSubmissions
+      inProgress: 0,
+      completed: totalSubmissions,
+      cancelled: 0
+    };
+
+    // Get recent candidates
+    const topPerformers = await Submission.aggregate([
+      {
+        $lookup: {
+          from: "interviews",
+          localField: "interviewId",
+          foreignField: "_id",
+          as: "interview"
+        }
+      },
+      { $unwind: "$interview" },
+      {
+        $project: {
+          name: "$candidateName",
+          position: "$interview.appliedFor"
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $limit: 4 }
+    ]);
+
+    // Get recent interviews
+    const recentInterviews = await Submission.aggregate([
+      {
+        $lookup: {
+          from: "interviews",
+          localField: "interviewId",
+          foreignField: "_id",
+          as: "interview"
+        }
+      },
+      { $unwind: "$interview" },
+      {
+        $project: {
+          candidate: "$candidateName",
+          position: "$interview.appliedFor",
+          status: "Completed",
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $limit: 4 }
+    ]);
+
+    const stats = {
+      totalInterviews,
+      totalUsers,
+      totalQuestions,
+      interviewStats,
+      topPerformers,
+      recentInterviews
+    };
+
+    res.status(200).json({ success: true, stats });
+  } catch (error) {
+    console.error("getAdminStats error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch admin statistics",
+      error
     });
   }
 };
