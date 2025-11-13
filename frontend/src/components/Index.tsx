@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import QuestionPanel from "./QuestionPanel";
 import axios from "axios";
+import Logo from "../assests/ARINOVA.svg";
 
 /*const questions = [
   {
@@ -97,8 +98,8 @@ export default function Index() {
     <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
       <div className="w-full md:w-1/2 min-h-96 md:h-screen bg-[#2a2a2a] border-r border-b md:border-b-0 border-[#3a3a3a] flex flex-col">
         <div className="bg-[#1f1f1f] border-b border-[#3a3a3a] px-4 py-3 flex items-center gap-2 md:gap-3 flex-wrap md:flex-nowrap">
-          <div className="w-5 h-5 rounded bg-orange-500 flex items-center justify-center flex-shrink-0">
-            <div className="w-2 h-2 rounded-full bg-orange-400" />
+          <div className="w-10 h-10 rounded  flex items-center justify-center flex-shrink-0">
+            <img src={Logo} alt="logo" className="w-full h-full" />
           </div>
           <span className="text-xs md:text-sm text-gray-300 font-medium">
             Arinova Studio
