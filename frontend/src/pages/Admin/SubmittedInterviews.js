@@ -56,14 +56,14 @@ const SubmittedInterviews = () => {
   const handleCandidateDecision = async (submissionId, status) => {
     const candidate = selectedSubmission || submissions.find(s => s._id === submissionId);
     const actionText = status === 'selected' ? 'selecting' : 'rejecting';
-    
+
     if (!window.confirm(`Are you sure you want to ${actionText.slice(0, -3)} ${candidate?.candidateName}? This will send an email notification.`)) {
       return;
     }
-    
+
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/submission/${submissionId}/decision`, 
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/submission/${submissionId}/decision`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -207,14 +207,14 @@ const SubmittedInterviews = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-gray-800">📋 Interview Submission</h3>
-                <button 
+                <button
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-600 text-2xl"
                 >
                   ✕
                 </button>
               </div>
-              
+
               <div className="space-y-6">
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <h4 className="text-lg font-semibold text-gray-800 mb-2">{selectedSubmission.candidateName}</h4>
@@ -256,26 +256,32 @@ const SubmittedInterviews = () => {
                           <div className="flex justify-between items-start mb-3">
                             <h5 className="font-semibold text-gray-800">Question {index + 1}</h5>
                           </div>
-                          
+
                           <div className="mb-3">
                             <p className="text-sm font-medium text-gray-700 mb-1">Question:</p>
                             <p className="text-gray-800 bg-white p-2 rounded border">{response.question}</p>
                           </div>
-                          
+
                           <div className="grid md:grid-cols-2 gap-4">
                             <div>
                               <p className="text-sm font-medium text-gray-700 mb-1">Candidate's Answer:</p>
                               <div className="bg-white p-2 rounded border">
                                 {response.questionType === 'code' ? (
-                                  <pre className="text-sm text-gray-800 whitespace-pre-wrap">
-                                    <code>{response.candidateAnswer || response.codeAnswer || 'No answer provided'}</code>
+                                  <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono bg-gray-50 p-3 rounded border">
+                                    <code>{response.answer || response.candidateAnswer || 'No code provided'}</code>
                                   </pre>
+                                ) : response.questionType === 'MCQ' ? (
+                                  <div className="bg-green-50 p-2 rounded border border-green-200">
+                                    <span className="text-green-800 font-medium">
+                                       {response.answer || response.candidateAnswer || 'No option selected'}
+                                    </span>
+                                  </div>
                                 ) : (
                                   <p className="text-gray-800">{response.candidateAnswer || response.answer || 'No answer provided'}</p>
                                 )}
                               </div>
                             </div>
-                            
+
                             <div>
                               <p className="text-sm font-medium text-gray-700 mb-1">Expected Answer:</p>
                               <div className="bg-blue-50 p-2 rounded border border-blue-200">
@@ -289,13 +295,20 @@ const SubmittedInterviews = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           {response.questionType === 'MCQ' && response.options && (
                             <div className="mt-3">
-                              <p className="text-sm font-medium text-gray-700 mb-1">Options:</p>
+                              <p className="text-sm font-medium text-gray-700 mb-1">All Options:</p>
                               <div className="flex flex-wrap gap-2">
                                 {response.options.map((option, optIndex) => (
-                                  <span key={optIndex} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm">
+                                  <span 
+                                    key={optIndex} 
+                                    className={`px-2 py-1 rounded text-sm ${
+                                      option === (response.candidateAnswer || response.answer)
+                                        ? 'bg-green-100 text-green-800 border border-green-300 font-medium'
+                                        : 'bg-gray-100 text-gray-700'
+                                    }`}
+                                  >
                                     {option}
                                   </span>
                                 ))}
@@ -312,22 +325,22 @@ const SubmittedInterviews = () => {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
-                <button 
-                  onClick={closeModal} 
+                <button
+                  onClick={closeModal}
                   className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   Close
                 </button>
 
-                <button 
+                <button
                   onClick={() => handleCandidateDecision(selectedSubmission._id, 'selected')}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   ✅ Select Candidate
                 </button>
-                <button 
+                <button
                   onClick={() => handleCandidateDecision(selectedSubmission._id, 'rejected')}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >

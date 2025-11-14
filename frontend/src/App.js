@@ -11,15 +11,17 @@ import SavedQuestions from './pages/Admin/SavedQuestions';
 import Users from './pages/Admin/Users';
 import InterviewDetails from './pages/Admin/InterviewDetails';
 import HomePage from './pages/Users/HomePage';
-import InterviewPage from './pages/Users/InterviewPage';
+// import InterviewPage from './pages/Users/InterviewPage';
 import AuthGuard from './components/AuthGuard';
+import Index from './pages/Users/InterviewPage/Index';
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/interview/:slug" element={<InterviewPage />} />
+        {/* <Route path="/interview/:slug" element={<InterviewPage />} /> */}
+        <Route path="/interview/:slug" element={<Index />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
