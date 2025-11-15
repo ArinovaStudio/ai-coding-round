@@ -31,9 +31,9 @@ export default function QuestionPanel({
 
         {/* Answer Area */}
         <div className="flex-1 flex flex-col">
-          {(question.questionType === "plainText" || question.questionType === "code") && (
+          {question.questionType === "plainText" && (
             <TextQuestion
-              hint={question.questionType === "code" ? "Add notes, explanation, or approach here..." : "Write your answer here"}
+              hint="Write your answer here"
               answer={answer}
               onAnswer={onAnswer}
             />

@@ -5,7 +5,7 @@ export default function TextQuestion({
 }) {
   return (
     <textarea
-      className="flex-1 w-full bg-[#1f1f1f] text-gray-200 placeholder-gray-500 border border-[#3a3a3a] rounded p-4 text-sm focus:outline-none focus:border-orange-500 focus:border-2 resize-none min-h-40 md:min-h-64"
+      className="flex-1 w-full bg-[#1f1f1f] text-gray-200 placeholder-gray-500  rounded p-4 text-sm focus:outline-none  resize-none min-h-40 md:min-h-64"
       placeholder={hint}
       value={answer}
       onChange={(e) => onAnswer(e.target.value)}

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import QuestionPanel from "./QuestionPanel";
 import CodeEditor from "./CodeEditor";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../../../context/auth";
 
 export default function Index() {
   const { slug } = useParams();
@@ -13,21 +14,20 @@ export default function Index() {
   const [responses, setResponses] = useState([]);
   const [codeAnswers, setCodeAnswers] = useState([]);
   const [textAnswers, setTextAnswers] = useState([]);
-  const [candidateInfo, setCandidateInfo] = useState({
-    candidateName: '',
-    candidateEmail: ''
-  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [showCandidateForm, setShowCandidateForm] = useState(true);
-
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+  const [auth, setAuth, login] = useAuth();
+  const location = useLocation();
   const question = interview?.questionId?.questions[currentQuestion];
 
   const handleCodeAnswer = (code) => {
     const updatedCodeAnswers = [...codeAnswers];
     updatedCodeAnswers[currentQuestion] = code;
     setCodeAnswers(updatedCodeAnswers);
-    
+
     const updatedResponses = [...responses];
     updatedResponses[currentQuestion] = {
       questionId: interview.questionId.questions[currentQuestion]._id,
@@ -41,7 +41,7 @@ export default function Index() {
     const updatedTextAnswers = [...textAnswers];
     updatedTextAnswers[currentQuestion] = text;
     setTextAnswers(updatedTextAnswers);
-    
+
     if (question?.questionType !== 'code') {
       const updatedResponses = [...responses];
       updatedResponses[currentQuestion] = {
@@ -74,8 +74,8 @@ export default function Index() {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       const submissionData = {
-        candidateName: candidateInfo.candidateName,
-        candidateEmail: candidateInfo.candidateEmail,
+        candidateName: currentUser?.username || '',
+        candidateEmail: currentUser?.email || '',
         responses: responses.filter(r => r.answer && r.answer.trim())
       };
 
@@ -101,16 +101,31 @@ export default function Index() {
     }
   };
 
-  const startInterview = () => {
-    if (!candidateInfo.candidateName.trim()) {
-      toast.error('Please enter your name');
-      return;
+
+
+  // Fetch current logged-in user details
+  const fetchCurrentUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsLoggedIn(false);
+        return;
+      }
+
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        setIsLoggedIn(true);
+        setCurrentUser(response.data.user);
+      } else {
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      setIsLoggedIn(false);
     }
-    if (!candidateInfo.candidateEmail.trim()) {
-      toast.error('Please enter your email');
-      return;
-    }
-    setShowCandidateForm(false);
   };
 
   useEffect(() => {
@@ -120,6 +135,7 @@ export default function Index() {
         window.location.href = '/';
         return;
       }
+      fetchCurrentUser(); // Fetch user first
       fetchInterview();
     }
   }, [slug]);
@@ -143,11 +159,12 @@ export default function Index() {
       }
     } catch (error) {
       console.error('Error fetching interview:', error);
-      toast.error('Interview not found or expired');
     } finally {
       setLoading(false);
     }
   };
+
+
 
   if (loading) {
     return (
@@ -159,63 +176,25 @@ export default function Index() {
       </div>
     );
   }
-
-  if (!interview) {
+  if (!isLoggedIn || !interview) {
     return (
       <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
         <div className="text-center bg-[#2a2a2a] p-8 rounded-lg shadow-lg max-w-md">
           <div className="text-6xl mb-4">❌</div>
-          <h2 className="text-2xl font-semibold text-red-400 mb-2">Interview Not Found</h2>
-          <p className="text-gray-400">The interview link may be invalid or expired.</p>
+          <h2 className="text-2xl font-semibold text-red-400 mb-2">Login Required</h2>
+          <p className="text-gray-400">Please login to access this interview.</p>
+          <button
+            onClick={() => navigate("/login", { state: { from: location } })}
+            className="w-full py-3 mt-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+          >
+            Login Now
+          </button>
         </div>
       </div>
     );
   }
 
-  if (showCandidateForm) {
-    return (
-      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center py-8">
-        <div className="max-w-md w-full bg-[#2a2a2a] rounded-lg shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white mb-2">Welcome to Interview</h2>
-            <h3 className="text-lg text-orange-400 mb-4">{interview.name}</h3>
-            <p className="text-gray-400">Position: {interview.appliedFor}</p>
-          </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Your Name *</label>
-              <input
-                type="text"
-                value={candidateInfo.candidateName}
-                onChange={(e) => setCandidateInfo({ ...candidateInfo, candidateName: e.target.value })}
-                className="w-full px-4 py-2 bg-[#1f1f1f] border border-[#3a3a3a] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white"
-                placeholder="Enter your full name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Your Email *</label>
-              <input
-                type="email"
-                value={candidateInfo.candidateEmail}
-                onChange={(e) => setCandidateInfo({ ...candidateInfo, candidateEmail: e.target.value })}
-                className="w-full px-4 py-2 bg-[#1f1f1f] border border-[#3a3a3a] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white"
-                placeholder="Enter your email address"
-              />
-            </div>
-
-            <button
-              onClick={startInterview}
-              className="w-full py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-            >
-              Start Interview
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (isCompleted) {
     return (
@@ -233,24 +212,26 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
-      {/* Left side - Monaco Editor */}
-      <div className="w-full md:w-1/2 min-h-96 md:h-screen bg-[#1e1e1e] border-r border-[#3a3a3a] flex flex-col">
-        <div className="bg-[#1f1f1f] border-b border-[#3a3a3a] px-4 py-3 flex items-center gap-2 md:gap-3">
-          <span className="text-xs md:text-sm text-gray-300 font-medium">
-            Code Editor - {question?.codeLang || 'JavaScript'}
-          </span>
+      {/* Left side - Monaco Editor (only for code questions) */}
+      {question?.questionType === 'code' && (
+        <div className="w-full md:w-1/2 min-h-96 md:h-screen bg-[#1e1e1e] border-r border-[#3a3a3a] flex flex-col">
+          <div className="bg-[#1f1f1f] border-b border-[#3a3a3a] px-4 py-3 flex items-center gap-2 md:gap-3">
+            <span className="text-xs md:text-sm text-gray-300 font-medium">
+              Code Editor - {question?.codeLang || 'JavaScript'}
+            </span>
+          </div>
+          <div className="flex-1 p-4">
+            <CodeEditor
+              codeLang={question?.codeLang || 'javascript'}
+              code={codeAnswers[currentQuestion] || ''}
+              setCode={handleCodeAnswer}
+            />
+          </div>
         </div>
-        <div className="flex-1 p-4">
-          <CodeEditor
-            codeLang={question?.codeLang || 'javascript'}
-            code={codeAnswers[currentQuestion] || ''}
-            setCode={handleCodeAnswer}
-          />
-        </div>
-      </div>
-      
+      )}
+
       {/* Right side - Question Panel */}
-      <div className="w-full md:w-1/2">
+      <div className={`w-full ${question?.questionType === 'code' ? 'md:w-1/2' : ''}`}>
         <QuestionPanel
           question={question}
           answer={textAnswers[currentQuestion] || ""}
@@ -261,7 +242,6 @@ export default function Index() {
           totalQuestions={interview?.questionId?.questions?.length || 0}
           isLastQuestion={currentQuestion === (interview?.questionId?.questions?.length || 0) - 1}
           isSubmitting={isSubmitting}
-          showCodeEditor={question?.questionType === 'code'}
         />
       </div>
     </div>
