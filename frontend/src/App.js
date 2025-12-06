@@ -30,7 +30,7 @@ function App() {
             <AdminLayout />
           </AuthGuard>
         }>
-         // <Route path="" element={<AdminDashboardNew />} />
+{ /* <Route path="" element={<AdminDashboardNew />} /> */}
           <Route path="/dashboard" element={<AdminDashboardNew />} />
           <Route path="/new-interview" element={<NewInterviewPro />} />
           <Route path="/submitted-interviews" element={<SubmittedInterviews />} />
