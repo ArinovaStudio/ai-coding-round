@@ -269,10 +269,10 @@ const NewInterviewPro = () => {
           <div className="bg-white border border-green-300 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between">
               <div className="font-mono text-sm text-gray-700 break-all">
-                http://localhost:3000/interview/{generatedSlug}
+                https://assessment.arinova.studio/interview/{generatedSlug}
               </div>
               <button
-                onClick={() => { copyToClipboard(`http://localhost:3000/interview/${generatedSlug}`);  }}
+                onClick={() => { copyToClipboard(`https://assessment.arinova.studio/interview/${generatedSlug}`);  }}
                 className="ml-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                 📋 Copy Link
               </button>
