@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -205,3 +206,6 @@ a:hover {
     font-size: 3rem;
   }
 }
+=======
+@import "tailwindcss"; 
+>>>>>>> e93134bc37fb7062c4d1fe56601c1f0dbb23159e
