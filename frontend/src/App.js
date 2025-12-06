@@ -30,13 +30,13 @@ function App() {
             <AdminLayout />
           </AuthGuard>
         }>
-          <Route path="" element={<AdminDashboardNew />} />
-          <Route path="dashboard" element={<AdminDashboardNew />} />
-          <Route path="new-interview" element={<NewInterviewPro />} />
-          <Route path="submitted-interviews" element={<SubmittedInterviews />} />
-          <Route path="interview-details/:id" element={<InterviewDetails />} />
-          <Route path="saved-questions" element={<SavedQuestions />} />
-          <Route path="users" element={<Users />} />
+         // <Route path="" element={<AdminDashboardNew />} />
+          <Route path="/dashboard" element={<AdminDashboardNew />} />
+          <Route path="/new-interview" element={<NewInterviewPro />} />
+          <Route path="/submitted-interviews" element={<SubmittedInterviews />} />
+          <Route path="/interview-details/:id" element={<InterviewDetails />} />
+          <Route path="/saved-questions" element={<SavedQuestions />} />
+          <Route path="/users" element={<Users />} />
         </Route>
       </Routes>
       <Toaster position="top-right" />
