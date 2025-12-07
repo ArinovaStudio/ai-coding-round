@@ -22,7 +22,11 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(cors())
+
+app.use(cors({
+  origin: "https://assessment.arinova.studio",
+  credentials: true
+}))
 
 app.use("/api/auth",authRoute)
 app.use("/api/admin",interviewAdminRoute)
