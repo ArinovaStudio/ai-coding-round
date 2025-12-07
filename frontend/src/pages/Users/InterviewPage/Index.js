@@ -5,6 +5,7 @@ import axios from "axios";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../../context/auth";
+import { REACT_APP_API_URL } from "../../../context/env";
 
 export default function Index() {
   const { slug } = useParams();
@@ -80,7 +81,7 @@ export default function Index() {
       };
 
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/user/${slug}/submit`,
+        `${REACT_APP_API_URL}/api/user/${slug}/submit`,
         submissionData,
         { headers }
       );
@@ -112,7 +113,7 @@ export default function Index() {
         return;
       }
 
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+      const response = await axios.get(`${REACT_APP_API_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -145,7 +146,7 @@ export default function Index() {
       setLoading(true);
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/${slug}`, { headers });
+      const response = await axios.get(`${REACT_APP_API_URL}/api/user/${slug}`, { headers });
 
       if (response.data.success) {
         setInterview(response.data.data);

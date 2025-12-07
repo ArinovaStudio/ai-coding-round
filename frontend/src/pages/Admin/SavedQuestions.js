@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { REACT_APP_API_URL } from '../../context/env';
 
 const SavedQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -15,7 +16,7 @@ const SavedQuestions = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/question/ai`, {
+      const response = await axios.get(`${REACT_APP_API_URL}/api/admin/question/ai`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -54,7 +55,7 @@ const SavedQuestions = () => {
   const handleDelete = async (questionId, interviewId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/question/${interviewId}/${questionId}`, {
+      const response = await axios.delete(`${REACT_APP_API_URL}/api/admin/question/${interviewId}/${questionId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

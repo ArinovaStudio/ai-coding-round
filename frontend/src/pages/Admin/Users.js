@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { REACT_APP_API_URL } from '../../context/env';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -13,7 +14,7 @@ const Users = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, {
+      const response = await axios.get(`${REACT_APP_API_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
@@ -30,7 +31,7 @@ const Users = () => {
     if (window.confirm(`Are you sure you want to delete user ${username}?`)) {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/users/${id}`, {
+        const response = await axios.delete(`${REACT_APP_API_URL}/api/admin/users/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {

@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaUser, FaEnvelope, FaLock, FaUserTag} from 'react-icons/fa';
+import { REACT_APP_API_URL } from '../../context/env';
 
 // This component handles user registration
 // It includes a form for users to enter their details
@@ -13,13 +14,13 @@ const Register = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [role, setRole] = useState("user");
+    const role = "user"
     const navigate = useNavigate();
 
     const handlesubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+            const response = await axios.post(`${REACT_APP_API_URL}/api/auth/register`, {
                 username,
                 email,
                 password,
@@ -59,7 +60,7 @@ const Register = () => {
                                         id="username"
                                         value={username} 
                                         onChange={(e) => setUsername(e.target.value)} 
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                                         placeholder="Enter your username" 
                                         required 
                                     />
@@ -77,7 +78,7 @@ const Register = () => {
                                         id="email"
                                         value={email} 
                                         onChange={(e) => setEmail(e.target.value)} 
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                                         placeholder="Enter your email" 
                                         required 
                                     />
@@ -95,35 +96,17 @@ const Register = () => {
                                         id="password"
                                         value={password} 
                                         onChange={(e) => setPassword(e.target.value)} 
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                                         placeholder="Create a password" 
                                         required 
                                     />
                                 </div>
                             </div>
                             
-                            <div>
-                                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <FaUserTag className="text-gray-400" />
-                                    </div>
-                                    <select 
-                                        id="role"
-                                        value={role} 
-                                        onChange={(e) => setRole(e.target.value)} 
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                        required
-                                    >
-                                        <option value="user">User</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
-                                </div>
-                            </div>
                             
                             <button 
                                 type="submit" 
-                                className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors mt-6"
+                                className="w-full py-3 px-4 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors mt-6"
                             >
                                 Create Account
                             </button>
@@ -132,7 +115,7 @@ const Register = () => {
                         <div className="text-center mt-6">
                             <p className="text-gray-600">
                                 Already have an account? 
-                                <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium ml-1 transition-colors">
+                                <Link to="/login" className="text-purple-600 hover:text-purple-800 font-medium ml-1 transition-colors">
                                     Login
                                 </Link>
                             </p>

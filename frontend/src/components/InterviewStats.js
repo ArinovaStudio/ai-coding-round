@@ -10,6 +10,7 @@ import {
     FaClock,
     FaExclamationTriangle
 } from 'react-icons/fa';
+import { REACT_APP_API_URL } from '../context/env';
 
 const InterviewStats = () => {
     const [stats, setStats] = useState(null);
@@ -21,7 +22,7 @@ const InterviewStats = () => {
             setLoading(true);
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/stats`, {
+                const response = await fetch(`${REACT_APP_API_URL}/api/admin/stats`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'

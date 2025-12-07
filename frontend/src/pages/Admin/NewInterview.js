@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { REACT_APP_API_URL } from '../../context/env';
 
 const NewInterviewPro = () => {
   const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ const NewInterviewPro = () => {
       }
 
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/createInterview`, interviewData, {
+      const response = await axios.post(`${REACT_APP_API_URL}/api/admin/createInterview`, interviewData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

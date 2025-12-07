@@ -5,6 +5,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/auth';
 import { FaEnvelope, FaLock} from 'react-icons/fa';
+import { REACT_APP_API_URL } from '../../context/env';
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -16,7 +17,7 @@ const Login = () => {
     const handlesubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+            const response = await axios.post(`${REACT_APP_API_URL}/api/auth/login`, {
                 email,
                 password
             });
@@ -42,7 +43,7 @@ const Login = () => {
 
     return (
         <Layout>
-            <div className=" bg-gray-50 flex items-center justify-center py-1 px-4">
+            <div className=" bg-gray-50 flex items-center justify-center py-1 w-screen h-80%">
                 <div className="max-w-md w-full bg-white rounded-lg shadow-lg">
                     <div className="p-8">
                         <div className="text-center mb-8">
@@ -62,7 +63,7 @@ const Login = () => {
                                         id="email"
                                         value={email} 
                                         onChange={(e) => setEmail(e.target.value)} 
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                                         placeholder="Enter your email" 
                                         required 
                                     />
@@ -83,16 +84,16 @@ const Login = () => {
                                         id="password"
                                         value={password} 
                                         onChange={(e) => setPassword(e.target.value)} 
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                                         placeholder="Enter your password" 
                                         required 
                                     />
                                 </div>
                             </div>
                             
-                            <button 
+                            <button
                                 type="submit" 
-                                className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                                className="w-full py-3 px-4 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
                             >
                                 Login
                             </button>
@@ -101,7 +102,7 @@ const Login = () => {
                         <div className="text-center mt-6">
                             <p className="text-gray-600">
                                 Don't have an account? 
-                                <Link to="/register" className="text-blue-600 hover:text-blue-800 font-medium ml-1 transition-colors">
+                                <Link to="/register" className="text-purple-600 hover:text-purple-800 font-medium ml-1 transition-colors">
                                     Register
                                 </Link>
                             </p>

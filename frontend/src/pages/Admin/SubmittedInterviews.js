@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { REACT_APP_API_URL } from '../../context/env';
 
 const SubmittedInterviews = () => {
   const [submissions, setSubmissions] = useState([]);
@@ -17,7 +18,7 @@ const SubmittedInterviews = () => {
   const fetchSubmissions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/submission`, {
+      const response = await axios.get(`${REACT_APP_API_URL}/api/admin/submission`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
@@ -35,7 +36,7 @@ const SubmittedInterviews = () => {
     setLoadingDetails(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/submission/${submission._id}`, {
+      const response = await axios.get(`${REACT_APP_API_URL}/api/admin/submission/${submission._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
@@ -63,7 +64,7 @@ const SubmittedInterviews = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/submission/${submissionId}/decision`,
+      const response = await axios.post(`${REACT_APP_API_URL}/api/admin/submission/${submissionId}/decision`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -81,7 +82,7 @@ const SubmittedInterviews = () => {
     if (window.confirm('Are you sure you want to delete this submission?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/submission/${submissionId}`, {
+        const response = await axios.delete(`${REACT_APP_API_URL}/api/admin/submission/${submissionId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
