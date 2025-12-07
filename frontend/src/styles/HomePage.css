@@ -1,0 +1,40 @@
+/* Hero Section */
+.hero-section {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #13002b 50%, #b66cff 0%);
+  color: white;
+  overflow: hidden;
+}
+
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 5%;
+  align-items: center;
+}
+
+
+.button {
+ --glow-color: rgb(202, 146, 255);
+ --glow-spread-color: rgba(191, 123, 255, 0.781);
+ --enhanced-glow-color: rgb(231, 206, 255);
+ --btn-color: rgb(72, 42, 99);
+ border: .25em solid var(--glow-color);
+ padding: 1em 3em;
+ color: var(--glow-color);
+ font-size: 15px;
+ font-weight: bold;
+ background-color: var(--btn-color);
+ border-radius: 1em;
+ outline: none;
+ box-shadow: 0 0 1em .25em var(--glow-color),
+        0 0 4em 1em var(--glow-spread-color),
+        inset 0 0 .75em .25em var(--glow-color);
+ text-shadow: 0 0 .5em var(--glow-color);
+ position: relative;
+ transition: all 0.3s;
+}
